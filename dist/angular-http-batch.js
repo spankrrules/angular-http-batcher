@@ -1,5 +1,5 @@
 /*
- * fella-http-batcher - v1.0.0 - 2016-03-18
+ * fella-http-batcher - v1.0.0 - 2016-03-19
  * 
  * Copyright (c) 2016 
  */
@@ -583,8 +583,7 @@ function FellaAdapter($document, $window, httpBatchConfig) {
       ops = {
         url: createUrl(request.url, config),
         method: request.method,
-        body: request.data,
-        params: createParams(request.url, config),
+        params: angular.extend(JSON.parse(request.data), createParams(request.url, config)),
         headers: request.headers
       };
       httpConfig.data.ops.push(ops);
