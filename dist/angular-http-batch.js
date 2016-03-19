@@ -576,14 +576,20 @@ function FellaAdapter($document, $window, httpBatchConfig) {
         }
       },
       i, request,
-      ops;
+      ops, params;
 
     for (i = 0; i < requests.length; i += 1) {
       request = requests[i];
+      if (!angular.isUndefined(request.data)) {
+        params = angular.extend(JSON.parse(request.data), createParams(request.url, config));
+      } else {
+        params = createParams(request.url, config);
+      }
+
       ops = {
         url: createUrl(request.url, config),
         method: request.method,
-        params: angular.extend(JSON.parse(request.data), createParams(request.url, config)),
+        params: params,
         headers: request.headers
       };
       httpConfig.data.ops.push(ops);
