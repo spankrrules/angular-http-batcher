@@ -1,5 +1,5 @@
 /*
- * fella-http-batcher - v1.0.0 - 2016-03-19
+ * fella-http-batcher - v1.0.0 - 2016-05-19
  * 
  * Copyright (c) 2016 
  */
@@ -556,7 +556,7 @@ function NodeJsMultiFetchAdapter() {
 
 angular.module(window.ahb.name).service('nodeJsMultiFetchAdapter', NodeJsMultiFetchAdapter);
 
-function FellaAdapter($document, $window, httpBatchConfig) {
+function FellaAdapter($document, $window, httpBatchConfig, UrlEncoder) {
   var self = this;
 
   self.key = 'fellaAdapter';
@@ -607,17 +607,13 @@ function FellaAdapter($document, $window, httpBatchConfig) {
   }
 
   function createParams(url, config) {
-    var result = {};
     var index = url.indexOf('?');
     if (index > -1) {
       url = url.substring(url.indexOf('?')).slice(1);
-      var pairs = url.split('&');
-      pairs.forEach(function (pair) {
-        pair = pair.split('=');
-        result[pair[0]] = decodeURIComponent(pair[1] || '');
-      });
+      return UrlEncoder.decode(url);
+    } else {
+      return {};
     }
-    return result;
   }
 
   function parseResponseFn(requests, rawResponse) {
@@ -649,10 +645,115 @@ function FellaAdapter($document, $window, httpBatchConfig) {
 FellaAdapter.$inject = [
   '$document',
   '$window',
-  'httpBatchConfig'
+  'httpBatchConfig',
+  'UrlEncoder'
 ];
 
 angular.module(window.ahb.name).service('fellaAdapter', FellaAdapter);
+
+function UrlEncoder() {
+  var self = this;
+
+  self.key = 'UrlEncoder';
+  self.encode = encode;
+  self.decode = decode;
+
+  function encode(params, prefix) {
+
+    var items = [];
+
+    for (var field in params) {
+
+      var key = prefix ? prefix + "[" + field + "]" : field;
+      var type = typeof params[field];
+
+      switch (type) {
+
+      case "object":
+
+        //handle arrays appropriately x[]=1&x[]=3
+        if (params[field].constructor == Array) {
+          params[field].each(function (val) {
+            items.push(key + "[]=" + val);
+          }, this);
+        } else {
+          //recusrively construct the sub-object
+          items = items.concat(this.encode(params[field], key));
+        }
+        break;
+      case "function":
+        break;
+      default:
+        items.push(key + "=" + encodeURIComponent(params[field]));
+        break;
+      }
+    }
+
+    return items.join("&");
+  }
+
+  function decode(params) {
+
+    var obj = {};
+    var parts = params.split("&");
+
+    parts.forEach(function (kvs) {
+
+      var kvp = kvs.split("=");
+      var key = decodeURIComponent(kvp[0]);
+      var val = decodeURIComponent(kvp[1]);
+
+      if (/\[\w+\]/.test(key)) {
+
+        var rgx = /\[(\w+)\]/g;
+        var top = /^([^\[]+)/.exec(key)[0];
+        var sub = rgx.exec(key);
+
+        if (!obj[top]) {
+          obj[top] = {};
+        }
+
+        var unroot = function (o) {
+
+          if (sub === null) {
+            return;
+          }
+
+          var sub_key = sub[1];
+
+          sub = rgx.exec(key);
+
+          if (!o[sub_key]) {
+            o[sub_key] = sub ? {} : val;
+          }
+
+          unroot(o[sub_key]);
+        };
+
+
+        unroot(obj[top]);
+
+        //array
+      } else if (/\[\]$/.test(key)) {
+        key = /(^\w+)/.exec(key)[0];
+        if (!obj[key]) {
+          obj[key] = [];
+        }
+        obj[key].push(val);
+      } else {
+        obj[key] = val;
+      }
+
+    });
+
+    return obj;
+  }
+
+}
+
+UrlEncoder.$inject = [];
+
+angular.module(window.ahb.name).service('UrlEncoder', UrlEncoder);
 
 function convertHeadersToString(headers) {
   var property,
