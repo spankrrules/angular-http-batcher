@@ -31,7 +31,7 @@ function UrlEncoder() {
       case "function":
         break;
       default:
-        items.push(key + "=" + escape(params[field]));
+        items.push(key + "=" + encodeURIComponent(params[field]));
         break;
       }
     }
@@ -48,7 +48,7 @@ function UrlEncoder() {
 
       var kvp = kvs.split("=");
       var key = decodeURIComponent(kvp[0]);
-      var val = unescape(kvp[1]);
+      var val = decodeURIComponent(kvp[1]);
 
       if (/\[\w+\]/.test(key)) {
 
