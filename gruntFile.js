@@ -150,6 +150,7 @@
             'src/services/adapters/httpAdapter.js',
             'src/services/adapters/nodeJsMultiFetchAdapter.js',
             'src/services/adapters/fellaAdapter.js',
+            'src/services/helpers/urlEncoder.js',
             'src/services/httpBatcher.js',
             'src/config/httpBackendDecorator.js',
             'src/angular-http-batch.postfix.js'

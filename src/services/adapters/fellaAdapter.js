@@ -1,4 +1,4 @@
-function FellaAdapter($document, $window, httpBatchConfig) {
+function FellaAdapter($document, $window, httpBatchConfig, UrlEncoder) {
   var self = this;
 
   self.key = 'fellaAdapter';
@@ -49,17 +49,13 @@ function FellaAdapter($document, $window, httpBatchConfig) {
   }
 
   function createParams(url, config) {
-    var result = {};
     var index = url.indexOf('?');
     if (index > -1) {
       url = url.substring(url.indexOf('?')).slice(1);
-      var pairs = url.split('&');
-      pairs.forEach(function (pair) {
-        pair = pair.split('=');
-        result[pair[0]] = decodeURIComponent(pair[1] || '');
-      });
+      return UrlEncoder.decode(url);
+    } else {
+      return {};
     }
-    return result;
   }
 
   function parseResponseFn(requests, rawResponse) {
@@ -91,7 +87,8 @@ function FellaAdapter($document, $window, httpBatchConfig) {
 FellaAdapter.$inject = [
   '$document',
   '$window',
-  'httpBatchConfig'
+  'httpBatchConfig',
+  'UrlEncoder'
 ];
 
 angular.module(window.ahb.name).service('fellaAdapter', FellaAdapter);
