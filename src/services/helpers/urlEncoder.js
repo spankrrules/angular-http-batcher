@@ -47,8 +47,8 @@ function UrlEncoder() {
     parts.forEach(function (kvs) {
 
       var kvp = kvs.split("=");
-      var key = decodeURIComponent(kvp[0]);
-      var val = decodeURIComponent(kvp[1]);
+      var key = decodeURIComponent(kvp.shift());
+      var val = decodeURIComponent(kvp.join('='));
 
       if (/\[\w+\]/.test(key)) {
 
