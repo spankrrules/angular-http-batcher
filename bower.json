@@ -1,6 +1,6 @@
 {
   "name": "fella-http-batcher",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "HTTP batch requests used by Fella Homes",
   "main": "dist/angular-http-batch.js",
   "keywords": [

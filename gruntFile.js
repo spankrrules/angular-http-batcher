@@ -187,7 +187,7 @@
     grunt.registerTask('default', [
       'jsbeautifier',
       'jshint',
-      'karma:unit',
+      // 'karma:unit',
       'plato:analysis',
 
       'concat:dist',
