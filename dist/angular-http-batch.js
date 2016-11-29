@@ -1,5 +1,5 @@
 /*
- * fella-http-batcher - v1.0.6 - 2016-10-22
+ * fella-http-batcher - v1.0.7 - 2016-11-29
  * 
  * Copyright (c) 2016 
  */
@@ -580,8 +580,23 @@ function FellaAdapter($document, $window, httpBatchConfig, UrlEncoder) {
 
     for (i = 0; i < requests.length; i += 1) {
       request = requests[i];
+
+      if (angular.isString(request.data)) {
+        request.data = JSON.parse(request.data);
+      }
+      if (angular.isUndefined(request.data)) {
+        request.data = {
+          headers: {
+            http_batcher: true
+          }
+        };
+      } else {
+        request.data.headers = {
+          http_batcher: true
+        };
+      }
       if (!angular.isUndefined(request.data)) {
-        params = angular.extend(JSON.parse(request.data), createParams(request.url, config));
+        params = angular.extend(request.data, createParams(request.url, config));
       } else {
         params = createParams(request.url, config);
       }
